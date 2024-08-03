@@ -6,13 +6,13 @@ import (
 )
 
 type Class struct {
-	Name     string
-	Students []*User
+	Name     string  `json:"name"`
+	Students []*User `json:"students"`
 }
 
 type User struct {
-	Name string
-	Age  int
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 func TestSerialize(t *testing.T) {

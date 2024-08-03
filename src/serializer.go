@@ -29,8 +29,15 @@ func Serialize(data any) string {
 		arr := []string{}
 		for _, f := range reflect.VisibleFields(valType) {
 			fName := f.Name
+			fTag := f.Tag.Get("json")
+
+			fNameSerialized := fTag
+			if fTag == "" {
+				fNameSerialized = fName
+			}
+
 			val := reflect.ValueOf(data).FieldByName(fName).Interface()
-			arr = append(arr, fmt.Sprintf("\"%s\":%s", fName, Serialize(val)))
+			arr = append(arr, fmt.Sprintf("\"%s\":%s", fNameSerialized, Serialize(val)))
 		}
 		return "{" + strings.Join(arr, ",") + "}"
 
