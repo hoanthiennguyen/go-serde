@@ -14,6 +14,7 @@ func Deserailize(raw string, dest any) error {
 	}
 
 	valType = valType.Elem()
+	destVal := reflect.ValueOf(dest).Elem()
 	switch valType.Kind() {
 	case reflect.Int:
 		val, err := strconv.Atoi(raw)
@@ -21,7 +22,7 @@ func Deserailize(raw string, dest any) error {
 			return err
 		}
 
-		dest = &val
+		destVal.Set(reflect.ValueOf(val))
 	case reflect.Float32, reflect.Float64:
 		val, err := strconv.ParseFloat(raw, 64)
 		if err != nil {
@@ -30,20 +31,20 @@ func Deserailize(raw string, dest any) error {
 
 		if valType.Kind() == reflect.Float32 {
 			val32 := float32(val)
-			dest = &val32
+			destVal.Set(reflect.ValueOf(val32))
 		} else {
-			dest = &val
+			destVal.Set(reflect.ValueOf(val))
 		}
 	case reflect.String:
 		raw = removeQuote(raw)
-		dest = &raw
+		destVal.Set(reflect.ValueOf(raw))
 
 	case reflect.Bool:
 		val, err := strconv.ParseBool(raw)
 		if err != nil {
 			return err
 		}
-		dest = &val
+		destVal.Set(reflect.ValueOf(val))
 
 	case reflect.Array, reflect.Slice:
 		raw = removeQuote(raw)
@@ -58,6 +59,42 @@ func Deserailize(raw string, dest any) error {
 			}
 
 			slice.Index(j).Set(reflect.ValueOf(destElementPtr).Elem())
+		}
+		destVal.Set(slice)
+
+	case reflect.Struct:
+		raw = removeQuote(raw)
+		arrRaw := strings.Split(raw, ",")
+		keyValMap := make(map[string]string)
+		for _, e := range arrRaw {
+			tmp := strings.Split(e, ":")
+			key, val := tmp[0], tmp[1]
+
+			key = removeQuote(key)
+			keyValMap[key] = val
+		}
+
+		for _, f := range reflect.VisibleFields(valType) {
+			fName := f.Name
+			fTag := f.Tag.Get("json")
+
+			fNameSerialized := fTag
+			if fTag == "" {
+				fNameSerialized = fName
+			}
+
+			fieldValRaw, ok := keyValMap[fNameSerialized]
+			if !ok {
+				continue
+			}
+
+			elemPtr := reflect.New(f.Type).Interface()
+			if err := Deserailize(fieldValRaw, elemPtr); err != nil {
+				return err
+			}
+
+			elemVal := reflect.ValueOf(elemPtr).Elem()
+			destVal.FieldByName(fName).Set(elemVal)
 		}
 
 	}

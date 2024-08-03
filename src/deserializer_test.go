@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func TestDeserailize(t *testing.T) {
 	type args struct {
@@ -58,11 +61,29 @@ func TestDeserailize(t *testing.T) {
 			wantErr: false,
 			want:    []int{1, 2, 3},
 		},
+		{
+			name: "array",
+			args: args{
+				raw:  "{\"name\":\"John\",\"age\":30}",
+				dest: new(User),
+			},
+			wantErr: false,
+			want: User{
+				Name: "John",
+				Age:  30,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := Deserailize(tt.args.raw, tt.args.dest); (err != nil) != tt.wantErr {
-				t.Errorf("Deserailize() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Deserailize() error: %v, wantErr %v", err, tt.wantErr)
+			}
+
+			rawDest, _ := json.Marshal(tt.args.dest)
+			rawWant, _ := json.Marshal(tt.want)
+			if string(rawDest) != string(rawWant) {
+				t.Errorf("Deserailize dest: %s, want: %s", rawDest, rawWant)
 			}
 		})
 	}
