@@ -18,25 +18,21 @@ func Serialize(data any) string {
 	case reflect.Bool:
 		return fmt.Sprint(data)
 	case reflect.Array, reflect.Slice:
-		result := "["
 		arr := []string{}
 		for i := 0; i < reflect.ValueOf(data).Len(); i++ {
 			val := reflect.ValueOf(data).Index(i).Interface()
 			arr = append(arr, Serialize(val))
 		}
-		result += strings.Join(arr, ",") + "]"
-		return result
+		return "[" + strings.Join(arr, ",") + "]"
 
 	case reflect.Struct:
-		result := "{"
 		arr := []string{}
 		for _, f := range reflect.VisibleFields(valType) {
 			fName := f.Name
 			val := reflect.ValueOf(data).FieldByName(fName).Interface()
 			arr = append(arr, fmt.Sprintf("\"%s\":%s", fName, Serialize(val)))
 		}
-		result += strings.Join(arr, ",") + "}"
-		return result
+		return "{" + strings.Join(arr, ",") + "}"
 
 	case reflect.Pointer:
 		val := reflect.ValueOf(data).Elem().Interface()
