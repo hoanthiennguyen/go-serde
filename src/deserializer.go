@@ -167,7 +167,7 @@ func separateKeyVal(src string) (map[string]string, error) {
 
 		case StateGetClosingCommaFieldVal:
 			if char == "," {
-				fieldValToken.End = index
+				fieldValToken.End = index - 1
 				fieldValToken.Completed = true
 				currentState = StateGetQuoteStartOfFieldName
 			} else if index == srcLen-1 {
