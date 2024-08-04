@@ -144,6 +144,39 @@ func Test_separateKeyVal(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "struct with space",
+			args: args{
+				src: `{"age":30, "name": "John"}`,
+			},
+			want: map[string]string{
+				"age":  `30`,
+				"name": `"John"`,
+			},
+			wantErr: false,
+		},
+		{
+			name: "struct with space 2",
+			args: args{
+				src: `{"age": 30, "name": "John"}`,
+			},
+			want: map[string]string{
+				"age":  `30`,
+				"name": `"John"`,
+			},
+			wantErr: false,
+		},
+		{
+			name: "struct with space 3",
+			args: args{
+				src: `{"age": 30,  "name": "John"}`,
+			},
+			want: map[string]string{
+				"age":  `30`,
+				"name": `"John"`,
+			},
+			wantErr: false,
+		},
+		{
 			name: "struct with array",
 			args: args{
 				src: `{"name":"John","age":[1,2,3]}`,

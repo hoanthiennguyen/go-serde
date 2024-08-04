@@ -124,6 +124,9 @@ func separateKeyVal(src string) (map[string]string, error) {
 		char := string(src[index])
 		switch currentState {
 		case StateGetQuoteStartOfFieldName:
+			if char == " " {
+				continue
+			}
 			if char == `"` {
 				currentState = StateGetEndOfFieldName
 				fieldNameToken = &TokenPosition{
@@ -141,6 +144,9 @@ func separateKeyVal(src string) (map[string]string, error) {
 			}
 
 		case StateWaitingColon:
+			if char == " " {
+				continue
+			}
 			if char == ":" {
 				currentState = StateGettingFieldVal
 			} else {
@@ -213,6 +219,7 @@ func separateKeyVal(src string) (map[string]string, error) {
 		if fieldNameToken.IsCompleted() && fieldValToken.IsCompleted() {
 			fieldName := src[fieldNameToken.Start+1 : fieldNameToken.End]
 			fieldVal := src[fieldValToken.Start : fieldValToken.End+1]
+			fieldVal = strings.TrimSpace(fieldVal)
 			result[fieldName] = fieldVal
 
 			fieldNameToken = nil
