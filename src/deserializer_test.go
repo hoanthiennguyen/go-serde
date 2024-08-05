@@ -133,6 +133,17 @@ func Test_separateKeyVal(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "struct with last val len = 1",
+			args: args{
+				src: `{"name":"John","age":3}`,
+			},
+			want: map[string]string{
+				"name": `"John"`,
+				"age":  `3`,
+			},
+			wantErr: false,
+		},
+		{
 			name: "struct 2",
 			args: args{
 				src: `{"age":30,"name":"John"}`,
@@ -231,6 +242,66 @@ func Test_separateKeyVal(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("separateKeyVal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_separateElements(t *testing.T) {
+	type args struct {
+		src string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "array of int",
+			args: args{
+				src: "[1,2,3]",
+			},
+			want: []string{"1", "2", "3"},
+		},
+		{
+			name: "array of int with space",
+			args: args{
+				src: "[1, 2, 3]",
+			},
+			want: []string{"1", "2", "3"},
+		},
+		// {
+		// 	name: "array of string",
+		// 	args: args{
+		// 		src: `["a","b","c"]`,
+		// 	},
+		// 	want: []string{`"a"`, `"b"`, `"c"`},
+		// },
+		// {
+		// 	name: "array of struct",
+		// 	args: args{
+		// 		src: `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
+		// 	},
+		// 	want: []string{`{"name":"John","age":30}`, `{"name":"Doe","age":25}`},
+		// },
+		// {
+		// 	name: "array of struct with space",
+		// 	args: args{
+		// 		src: `[{"name": "John", "age": 30}, {"name":"Doe","age":25}]`,
+		// 	},
+		// 	want: []string{`{"name":"John","age":30}`, `{"name":"Doe","age":25}`},
+		// },
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := separateElements(tt.args.src)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("separateElements() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("separateElements() = %v, want %v", got, tt.want)
 			}
 		})
 	}

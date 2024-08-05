@@ -63,15 +63,9 @@ func Deserailize(raw string, dest any) error {
 		destVal.Set(slice)
 
 	case reflect.Struct:
-		raw = removeQuote(raw)
-		arrRaw := strings.Split(raw, ",")
-		keyValMap := make(map[string]string)
-		for _, e := range arrRaw {
-			tmp := strings.Split(e, ":")
-			key, val := tmp[0], tmp[1]
-
-			key = removeQuote(key)
-			keyValMap[key] = val
+		keyValMap, err := separateKeyVal(raw)
+		if err != nil {
+			return err
 		}
 
 		for _, f := range reflect.VisibleFields(valType) {
@@ -169,6 +163,10 @@ func separateKeyVal(src string) (map[string]string, error) {
 				currentState = StateGetClosingQuoteFieldVal
 			default:
 				currentState = StateGetClosingCommaFieldVal
+				if index == srcLen-1 {
+					fieldValToken.End = index
+					fieldValToken.Completed = true
+				}
 			}
 
 		case StateGetClosingCommaFieldVal:
@@ -264,6 +262,8 @@ func (s DeserailizeState) String() string {
 		return "StateGetClosingCurlyBracketFieldVal"
 	case StateGetClosingQuoteFieldVal:
 		return "StateGetClosingQuoteFieldVal"
+	case StateGetClosingCommaFieldVal:
+		return "StateGetClosingCommaFieldVal"
 	case StateGetQuoteStartOfFieldName:
 		return "StateGetQuoteStartOfFieldName"
 	case StateExpectingComma:
@@ -283,4 +283,103 @@ type TokenPosition struct {
 
 func (t *TokenPosition) IsCompleted() bool {
 	return t != nil && t.Completed
+}
+
+func separateElements(src string) ([]string, error) {
+	src = removeQuote(src)
+	srcLen := len(src)
+	var itemToken *TokenPosition
+
+	openBracket := 0
+	currentState := StateGettingFieldVal
+	setEndOfFieldVal := func(index int) {
+		itemToken.End = index
+		itemToken.Completed = true
+		currentState = StateExpectingComma
+	}
+	var result []string
+
+	for index := 0; index < srcLen; index++ {
+		char := string(src[index])
+		fmt.Printf("state: %s, char: %s\n", currentState, char)
+		switch currentState {
+		case StateGettingFieldVal:
+			if char == " " {
+				continue
+			}
+			itemToken = &TokenPosition{
+				Start: index,
+			}
+			switch char {
+			case "[":
+				currentState = StateGetClosingSquareBracketFieldVal
+				openBracket = 1
+			case "{":
+				currentState = StateGetClosingCurlyBracketFieldVal
+				openBracket = 1
+			case `"`:
+				currentState = StateGetClosingQuoteFieldVal
+			default:
+				currentState = StateGetClosingCommaFieldVal
+				if index == srcLen-1 {
+					itemToken.End = index
+					itemToken.Completed = true
+				}
+			}
+		case StateGetClosingSquareBracketFieldVal:
+			if char == `]` {
+				openBracket--
+			} else if char == `[` {
+				openBracket++
+			}
+
+			if openBracket == 0 {
+				setEndOfFieldVal(index)
+			}
+
+		case StateGetClosingCurlyBracketFieldVal:
+			if char == `}` {
+				openBracket--
+			} else if char == `{` {
+				openBracket++
+			}
+
+			if openBracket == 0 {
+				setEndOfFieldVal(index)
+			}
+
+		case StateGetClosingQuoteFieldVal:
+			if char == `"` && string(src[index-1]) != `\` {
+				setEndOfFieldVal(index)
+			}
+
+		case StateGetClosingCommaFieldVal:
+			if char == "," {
+				itemToken.End = index - 1
+				itemToken.Completed = true
+				currentState = StateGettingFieldVal
+			} else if index == srcLen-1 {
+				itemToken.End = index
+				itemToken.Completed = true
+			}
+		case StateExpectingComma:
+			if char == " " {
+				continue
+			}
+
+			if char == "," {
+				currentState = StateGettingFieldVal
+			} else {
+				return nil, fmt.Errorf("invalid format state %v: char %s", currentState, char)
+			}
+		}
+
+		if itemToken.IsCompleted() {
+			tokenVal := src[itemToken.Start : itemToken.End+1]
+			tokenVal = strings.TrimSpace(tokenVal)
+			result = append(result, tokenVal)
+		}
+
+	}
+	return result, nil
 }
