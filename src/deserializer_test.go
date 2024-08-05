@@ -209,6 +209,18 @@ func Test_separateKeyVal(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "nested struct with space",
+			args: args{
+				src: `{"name":"Math","students":[{"name":"John","age":30},{"name":"Doe","age":25}] , "time": 11}`,
+			},
+			want: map[string]string{
+				"name":     `"Math"`,
+				"students": `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
+				"time":     "11",
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

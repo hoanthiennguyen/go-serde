@@ -209,6 +209,10 @@ func separateKeyVal(src string) (map[string]string, error) {
 			}
 
 		case StateExpectingComma:
+			if char == " " {
+				continue
+			}
+
 			if char == "," {
 				currentState = StateGetQuoteStartOfFieldName
 			} else {
