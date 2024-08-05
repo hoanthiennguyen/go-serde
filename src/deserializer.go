@@ -378,6 +378,7 @@ func separateElements(src string) ([]string, error) {
 			tokenVal := src[itemToken.Start : itemToken.End+1]
 			tokenVal = strings.TrimSpace(tokenVal)
 			result = append(result, tokenVal)
+			itemToken = nil
 		}
 
 	}

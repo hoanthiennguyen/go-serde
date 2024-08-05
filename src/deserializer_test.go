@@ -271,27 +271,27 @@ func Test_separateElements(t *testing.T) {
 			},
 			want: []string{"1", "2", "3"},
 		},
-		// {
-		// 	name: "array of string",
-		// 	args: args{
-		// 		src: `["a","b","c"]`,
-		// 	},
-		// 	want: []string{`"a"`, `"b"`, `"c"`},
-		// },
-		// {
-		// 	name: "array of struct",
-		// 	args: args{
-		// 		src: `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
-		// 	},
-		// 	want: []string{`{"name":"John","age":30}`, `{"name":"Doe","age":25}`},
-		// },
-		// {
-		// 	name: "array of struct with space",
-		// 	args: args{
-		// 		src: `[{"name": "John", "age": 30}, {"name":"Doe","age":25}]`,
-		// 	},
-		// 	want: []string{`{"name":"John","age":30}`, `{"name":"Doe","age":25}`},
-		// },
+		{
+			name: "array of string",
+			args: args{
+				src: `["a","b","c"]`,
+			},
+			want: []string{`"a"`, `"b"`, `"c"`},
+		},
+		{
+			name: "array of struct",
+			args: args{
+				src: `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
+			},
+			want: []string{`{"name":"John","age":30}`, `{"name":"Doe","age":25}`},
+		},
+		{
+			name: "array of struct with space",
+			args: args{
+				src: `[{"name": "John", "age": 30}, {"name":"Doe","age":25}]`,
+			},
+			want: []string{`{"name": "John", "age": 30}`, `{"name":"Doe","age":25}`},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
