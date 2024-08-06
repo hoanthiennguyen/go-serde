@@ -16,6 +16,11 @@ func Deserailize(raw string, dest any) error {
 	valType = valType.Elem()
 	destVal := reflect.ValueOf(dest).Elem()
 	switch valType.Kind() {
+	case reflect.Pointer:
+		if err := Deserailize(raw, destVal.Interface()); err != nil {
+			return err
+		}
+
 	case reflect.Int:
 		val, err := strconv.Atoi(raw)
 		if err != nil {

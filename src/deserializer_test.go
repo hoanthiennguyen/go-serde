@@ -11,6 +11,8 @@ func TestDeserailize(t *testing.T) {
 		raw  string
 		dest any
 	}
+	x := 0
+	xPtr := &x
 	tests := []struct {
 		name    string
 		args    args
@@ -22,6 +24,15 @@ func TestDeserailize(t *testing.T) {
 			args: args{
 				raw:  "1",
 				dest: new(int),
+			},
+			wantErr: false,
+			want:    1,
+		},
+		{
+			name: "int ptr",
+			args: args{
+				raw:  "1",
+				dest: &xPtr,
 			},
 			wantErr: false,
 			want:    1,
