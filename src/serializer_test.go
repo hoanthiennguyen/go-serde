@@ -6,8 +6,8 @@ import (
 )
 
 type Class struct {
-	Name     string  `json:"name"`
-	Students []*User `json:"students"`
+	Name     string `json:"name"`
+	Students []User `json:"students"`
 }
 
 type User struct {
@@ -75,7 +75,7 @@ func TestSerialize(t *testing.T) {
 			args: args{
 				data: Class{
 					Name: "Math",
-					Students: []*User{
+					Students: []User{
 						{
 							Name: "John",
 							Age:  30,

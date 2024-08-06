@@ -47,8 +47,11 @@ func Deserailize(raw string, dest any) error {
 		destVal.Set(reflect.ValueOf(val))
 
 	case reflect.Array, reflect.Slice:
-		raw = removeQuote(raw)
-		arrRaw := strings.Split(raw, ",")
+		arrRaw, err := separateElements(raw)
+		if err != nil {
+			return err
+		}
+
 		numElem := len(arrRaw)
 		elementType := valType.Elem()
 		slice := reflect.MakeSlice(valType, numElem, numElem)
@@ -301,7 +304,6 @@ func separateElements(src string) ([]string, error) {
 
 	for index := 0; index < srcLen; index++ {
 		char := string(src[index])
-		fmt.Printf("state: %s, char: %s\n", currentState, char)
 		switch currentState {
 		case StateGettingFieldVal:
 			if char == " " {
