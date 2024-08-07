@@ -83,6 +83,15 @@ func TestDeserailize(t *testing.T) {
 			want:    []int{1, 2, 3},
 		},
 		{
+			name: "array 2 pointer",
+			args: args{
+				raw:  "[1,2,3]",
+				dest: new([]**int),
+			},
+			wantErr: false,
+			want:    []int{1, 2, 3},
+		},
+		{
 			name: "array of struct",
 			args: args{
 				raw:  `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
