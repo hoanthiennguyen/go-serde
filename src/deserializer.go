@@ -59,6 +59,12 @@ func Deserailize(raw string, dest any) error {
 
 		numElem := len(arrRaw)
 		elementType := valType.Elem()
+		isPointer := false
+		if elementType.Kind() == reflect.Pointer {
+			elementType = elementType.Elem()
+			isPointer = true
+		}
+
 		slice := reflect.MakeSlice(valType, numElem, numElem)
 		for j := 0; j < numElem; j++ {
 			destElementPtr := reflect.New(elementType).Interface()
@@ -66,7 +72,12 @@ func Deserailize(raw string, dest any) error {
 				return err
 			}
 
-			slice.Index(j).Set(reflect.ValueOf(destElementPtr).Elem())
+			if isPointer {
+				slice.Index(j).Set(reflect.ValueOf(destElementPtr))
+			} else {
+				slice.Index(j).Set(reflect.ValueOf(destElementPtr).Elem())
+			}
+
 		}
 		destVal.Set(slice)
 

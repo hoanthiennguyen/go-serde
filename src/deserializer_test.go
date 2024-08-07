@@ -74,16 +74,13 @@ func TestDeserailize(t *testing.T) {
 			want:    []int{1, 2, 3},
 		},
 		{
-			name: "struct",
+			name: "array pointer",
 			args: args{
-				raw:  "{\"name\":\"John\",\"age\":30}",
-				dest: new(User),
+				raw:  "[1,2,3]",
+				dest: new([]*int),
 			},
 			wantErr: false,
-			want: User{
-				Name: "John",
-				Age:  30,
-			},
+			want:    []int{1, 2, 3},
 		},
 		{
 			name: "array of struct",
@@ -104,6 +101,24 @@ func TestDeserailize(t *testing.T) {
 			},
 		},
 		{
+			name: "array of pointer struct",
+			args: args{
+				raw:  `[{"name":"John","age":30},{"name":"Doe","age":25}]`,
+				dest: new([]*User),
+			},
+			wantErr: false,
+			want: []*User{
+				{
+					Name: "John",
+					Age:  30,
+				},
+				{
+					Name: "Doe",
+					Age:  25,
+				},
+			},
+		},
+		{
 			name: "nested struct",
 			args: args{
 				raw:  `{"name":"Math","students":[{"name":"John","age":30},{"name":"Doe","age":25}]}`,
@@ -112,7 +127,7 @@ func TestDeserailize(t *testing.T) {
 			wantErr: false,
 			want: Class{
 				Name: "Math",
-				Students: []User{
+				Students: []*User{
 					{
 						Name: "John",
 						Age:  30,
