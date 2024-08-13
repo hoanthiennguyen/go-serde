@@ -15,6 +15,11 @@ type User struct {
 	Age  int    `json:"age"`
 }
 
+type Account struct {
+	ID   string `json:"id"`
+	User *User  `json:"user"`
+}
+
 func TestSerialize(t *testing.T) {
 	type args struct {
 		data any
@@ -71,7 +76,7 @@ func TestSerialize(t *testing.T) {
 			},
 		},
 		{
-			name: "nested struct",
+			name: "nested struct with array",
 			args: args{
 				data: Class{
 					Name: "Math",
@@ -84,6 +89,18 @@ func TestSerialize(t *testing.T) {
 							Name: "Doe",
 							Age:  25,
 						},
+					},
+				},
+			},
+		},
+		{
+			name: "nested struct",
+			args: args{
+				data: &Account{
+					ID: "abcdef",
+					User: &User{
+						Name: "Jonh",
+						Age:  25,
 					},
 				},
 			},

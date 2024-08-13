@@ -94,13 +94,18 @@ func Deserailize(raw string, dest any) error {
 				continue
 			}
 
-			elemPtr := reflect.New(f.Type).Interface()
+			elementType := f.Type
+			elementType, layers := unwrapPointer(elementType)
+
+			elemPtr := reflect.New(elementType).Interface()
 			if err := Deserailize(fieldValRaw, elemPtr); err != nil {
 				return err
 			}
 
-			elemVal := reflect.ValueOf(elemPtr).Elem()
-			destVal.FieldByName(fName).Set(elemVal)
+			elementVal := reflect.ValueOf(elemPtr).Elem()
+			elementVal = wrapPointer(elementVal, layers)
+
+			destVal.FieldByName(fName).Set(elementVal)
 		}
 
 	}

@@ -128,7 +128,7 @@ func TestDeserailize(t *testing.T) {
 			},
 		},
 		{
-			name: "nested struct",
+			name: "nested struct with array",
 			args: args{
 				raw:  `{"name":"Math","students":[{"name":"John","age":30},{"name":"Doe","age":25}]}`,
 				dest: new(Class),
@@ -145,6 +145,21 @@ func TestDeserailize(t *testing.T) {
 						Name: "Doe",
 						Age:  25,
 					},
+				},
+			},
+		},
+		{
+			name: "nested struct",
+			args: args{
+				raw:  `{"id":"abcdef","user":{"name":"Jonh","age":25}}`,
+				dest: new(Account),
+			},
+			wantErr: false,
+			want: &Account{
+				ID: "abcdef",
+				User: &User{
+					Name: "Jonh",
+					Age:  25,
 				},
 			},
 		},
