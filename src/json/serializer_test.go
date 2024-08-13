@@ -1,4 +1,4 @@
-package main
+package json
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type User struct {
 
 type Account struct {
 	ID   string `json:"id"`
-	User *User  `json:"user"`
+	User User   `json:"user"`
 }
 
 func TestSerialize(t *testing.T) {
@@ -98,7 +98,7 @@ func TestSerialize(t *testing.T) {
 			args: args{
 				data: &Account{
 					ID: "abcdef",
-					User: &User{
+					User: User{
 						Name: "Jonh",
 						Age:  25,
 					},

@@ -1,4 +1,4 @@
-package main
+package json
 
 import (
 	"encoding/json"
@@ -157,7 +157,7 @@ func TestDeserailize(t *testing.T) {
 			wantErr: false,
 			want: &Account{
 				ID: "abcdef",
-				User: &User{
+				User: User{
 					Name: "Jonh",
 					Age:  25,
 				},

@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/hoanthiennguyen/go-serde/src/json"
+)
 
 func main() {
-	fmt.Println(Serialize("hello"))
+	fmt.Println(json.Serialize("hello"))
 }
